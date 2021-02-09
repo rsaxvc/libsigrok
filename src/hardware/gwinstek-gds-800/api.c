@@ -22,6 +22,8 @@
 #include <math.h>
 #include "protocol.h"
 
+#define IDN_RETRIES 3 /* at least 2 */
+
 static const uint32_t scanopts[] = {
 	SR_CONF_CONN,
 	SR_CONF_SERIALCOMM,
@@ -80,7 +82,17 @@ static struct sr_dev_inst *probe_device(struct sr_scpi_dev_inst *scpi, struct sr
 	int i;
 	gchar *channel_name;
 
-	if (sr_scpi_get_hw_id(scpi, &hw_info) != SR_OK) {
+	/*
+	 * If there is already data in the GDS receive buffer,
+	 * the first SCPI IDN may fail, so try a few times
+	 */
+	for (i = 0; i < IDN_RETRIES; i++) {
+		/* Request the GDS to identify itself */
+		if (sr_scpi_get_hw_id(scpi, &hw_info) == SR_OK)
+			break;
+	}
+
+	if (i == IDN_RETRIES) {
 		sr_info("Couldn't get IDN response.");
 		return NULL;
 	}
