@@ -22,7 +22,7 @@
 #include <string.h>
 
 #define ANALOG_CHANNELS 2
-#define VERTICAL_DIVISIONS 10
+#define VERTICAL_DIVISIONS 8
 
 static int read_data(struct sr_dev_inst *sdi,
 		struct sr_scpi_dev_inst *scpi, struct dev_context *devc,
